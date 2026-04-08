@@ -3,7 +3,7 @@ title: Emergency Response Env
 emoji: 🚨
 colorFrom: blue
 colorTo: purple
-sdk: streamlit
+sdk: docker
 sdk_version: "1.30.0"
 python_version: "3.10"
 app_file: app.py
@@ -108,5 +108,8 @@ Deployed using **Hugging Face Spaces** with Docker support.
 * Designed for reinforcement learning experimentation
 * Focuses on realistic emergency scenarios
 * Supports scalable task difficulty
+fastapi
+uvicorn
+pydantic
 
 ---
