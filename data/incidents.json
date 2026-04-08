@@ -1,0 +1,20 @@
+[
+  {
+    "incident_type": "fire",
+    "location": "zone_1",
+    "severity": 8,
+    "required": {"firetruck": 2, "ambulance": 1, "police": 1}
+  },
+  {
+    "incident_type": "accident",
+    "location": "zone_2",
+    "severity": 5,
+    "required": {"ambulance": 2, "police": 1}
+  },
+  {
+    "incident_type": "flood",
+    "location": "zone_3",
+    "severity": 9,
+    "required": {"ambulance": 2, "police": 2, "firetruck": 1}
+  }
+]

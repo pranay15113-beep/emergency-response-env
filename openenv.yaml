@@ -1,0 +1,25 @@
+name: emergency-response-env
+
+description: >
+  An AI environment simulating emergency response coordination during cascading incidents.
+  The agent must allocate resources like ambulance, firetruck, and police effectively.
+
+tasks:
+  - easy_allocation
+  - medium_multi_incident
+  - hard_cascade
+
+observation_space:
+  type: list
+  description: List of incidents with type, location, severity, and required resources
+
+action_space:
+  type: list
+  description: List of resource allocation dictionaries per incident
+
+reward:
+  description: >
+    Reward based on how closely allocated resources match required resources.
+    Partial rewards are given for near-correct allocations.
+
+entry_point: env.environment:EmergencyEnv
