@@ -1,14 +1,34 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List, Dict
 from env.environment import EmergencyEnv
+
+app = FastAPI()
 
 env = EmergencyEnv()
 
-obs = env.reset()
-print("Observation:", obs)
+# Request model for step
+class ActionRequest(BaseModel):
+    action: List[Dict]
 
-action = [
-    {"firetruck": 2, "ambulance": 1, "police": 1},
-    {"ambulance": 2, "police": 1}
-]
-obs, reward, done, _ = env.step(action)
+@app.get("/")
+def root():
+    return {"message": "Emergency Response Environment API is running"}
 
-print("Reward:", reward)
+@app.post("/reset")
+def reset():
+    state = env.reset()
+    return {
+        "state": state
+    }
+
+@app.post("/step")
+def step(request: ActionRequest):
+    action = request.action
+    next_state, reward, done, _ = env.step(action)
+
+    return {
+        "state": next_state,
+        "reward": reward,
+        "done": done
+    }
