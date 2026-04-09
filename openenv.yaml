@@ -5,9 +5,14 @@ description: >
   The agent must allocate resources like ambulance, firetruck, and police effectively.
 
 tasks:
-  - easy_allocation
-  - medium_multi_incident
-  - hard_cascade
+  - name: easy_allocation
+    grader: tasks.graders:grade_allocation
+
+  - name: medium_multi_incident
+    grader: tasks.graders:grade_allocation
+
+  - name: hard_cascade
+    grader: tasks.graders:grade_allocation
 
 observation_space:
   type: list
