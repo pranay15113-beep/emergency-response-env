@@ -6,23 +6,29 @@ BASE_URL = os.getenv("API_BASE_URL", "http://localhost:7860")
 def get_agent_action(state):
     actions = []
     for incident in state:
-        # simple smart allocation
         actions.append(incident["required"])
     return {"action": actions}
 
 
 def main():
-    # Step 1: Reset env
-    res = requests.post(f"{BASE_URL}/reset")
-    state = res.json()["state"]
+    try:
+        # Reset
+        res = requests.post(f"{BASE_URL}/reset")
+        data = res.json()
 
-    # Step 2: Take action
-    action = get_agent_action(state)
+        # 🔥 SAFE handling
+        state = data.get("state", data)
 
-    res = requests.post(f"{BASE_URL}/step", json=action)
-    result = res.json()
+        # Action
+        action = get_agent_action(state)
 
-    print("Final Reward:", result["reward"])
+        res = requests.post(f"{BASE_URL}/step", json=action)
+        result = res.json()
+
+        print("Final Reward:", result.get("reward", "N/A"))
+
+    except Exception as e:
+        print("Error:", str(e))
 
 
 if __name__ == "__main__":
