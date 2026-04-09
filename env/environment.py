@@ -35,4 +35,9 @@ class EmergencyEnv:
             required = incident["required"]
             act = action[i] if i < len(action) else {}
             total_score += grade_allocation(act, required)
-        return total_score / len(self.current)
+        score = total_score / len(self.current)
+
+        # ✅ force score strictly between (0,1)
+        score = max(0.01, min(0.99, score))
+
+      return score
