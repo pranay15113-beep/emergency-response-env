@@ -1,16 +1,23 @@
 from tasks.graders import grade_allocation
 import json
 import random
+import os
+
 
 class EmergencyEnv:
     def __init__(self):
-        with open("data/incidents.json") as f:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        file_path = os.path.join(base_dir, "data", "incidents.json")
+
+        with open(file_path) as f:
             self.incidents = json.load(f)
+
         self.current = None
 
     def reset(self):
         base = random.sample(self.incidents, 2)
-        # simulate cascade
+
+        # cascade logic
         if base[0]["incident_type"] == "fire":
             base.append({
                 "incident_type": "accident",
@@ -18,8 +25,10 @@ class EmergencyEnv:
                 "severity": 6,
                 "required": {"ambulance": 1, "police": 1}
             })
+
         self.current = base
         return self.current
+
     def state(self):
         return self.current
 
@@ -34,10 +43,17 @@ class EmergencyEnv:
         for i, incident in enumerate(self.current):
             required = incident["required"]
             act = action[i] if i < len(action) else {}
-            total_score += grade_allocation(act, required)
-        score = total_score / len(self.current)
 
-        # ✅ force score strictly between (0,1)
-        score = max(0.01, min(0.99, score))
+            score = grade_allocation(act, required)
 
-      return score
+            # 🔥 clamp each incident score
+            score = max(0.01, min(0.99, score))
+
+            total_score += score
+
+        final_score = total_score / len(self.current)
+
+        # 🔥 clamp final score also
+        final_score = max(0.01, min(0.99, final_score))
+
+        return final_score
