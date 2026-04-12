@@ -14,7 +14,7 @@ class EmergencyEnv:
 
         self.current = None
 
-    def reset(self):
+  def reset(self, task=None):
         base = random.sample(self.incidents, 2)
 
         # cascade logic
