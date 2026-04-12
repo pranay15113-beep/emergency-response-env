@@ -37,16 +37,30 @@ def get_agent_action(state):
 def run_task(task_name):
     print(f"[START] task={task_name}", flush=True)
 
-    res = requests.post(
-        f"{BASE_URL}/reset",
-        json={"task": task_name}
-    )
-    state = res.json()["state"]
+    try:
+        res = requests.post(
+            f"{BASE_URL}/reset",
+            json={"task": task_name}
+        )
+        data = res.json()
+
+        if isinstance(data, dict) and "state" in data:
+            state = data["state"]
+        else:
+            state = data
+
+    except Exception as e:
+        print(f"[ERROR] reset failed: {e}", flush=True)
+        return
 
     action = get_agent_action(state)
 
-    res = requests.post(f"{BASE_URL}/step", json=action)
-    result = res.json()
+    try:
+        res = requests.post(f"{BASE_URL}/step", json=action)
+        result = res.json()
+    except Exception as e:
+        print(f"[ERROR] step failed: {e}", flush=True)
+        return
 
     reward = result.get("reward", 0)
 
@@ -57,7 +71,6 @@ def run_task(task_name):
 
     print(f"[STEP] step=1 reward={reward}", flush=True)
     print(f"[END] task={task_name} score={reward} steps=1", flush=True)
-
 
 def main():
     run_task("easy_allocation")
