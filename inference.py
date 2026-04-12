@@ -11,7 +11,6 @@ client = OpenAI(
 
 
 def get_agent_action(state):
-    # LLM call (required)
     try:
         client.chat.completions.create(
             model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
@@ -25,14 +24,11 @@ def get_agent_action(state):
 
     for incident in state:
         modified = {}
-
         for k, v in incident["required"].items():
-            # 🔥 safe allocation (no 0, no perfect)
             if v > 1:
                 modified[k] = v - 1
             else:
                 modified[k] = 1
-
         actions.append(modified)
 
     return {"action": actions}
@@ -41,14 +37,11 @@ def get_agent_action(state):
 def run_task(task_name):
     print(f"[START] task={task_name}", flush=True)
 
-    # 🔥 pass task to environment
     res = requests.post(
         f"{BASE_URL}/reset",
         json={"task": task_name}
     )
-
-    data = res.json()
-    state = data.get("state", data)
+    state = res.json()["state"]
 
     action = get_agent_action(state)
 
@@ -57,7 +50,6 @@ def run_task(task_name):
 
     reward = result.get("reward", 0)
 
-    # 🔥 final safety clamp
     if reward <= 0:
         reward = 0.1
     elif reward >= 1:
@@ -68,13 +60,9 @@ def run_task(task_name):
 
 
 def main():
-    try:
-        run_task("easy_allocation")
-        run_task("medium_multi_incident")
-        run_task("hard_cascade")
-
-    except Exception as e:
-        print(f"[ERROR] {str(e)}", flush=True)
+    run_task("easy_allocation")
+    run_task("medium_multi_incident")
+    run_task("hard_cascade")
 
 
 if __name__ == "__main__":
