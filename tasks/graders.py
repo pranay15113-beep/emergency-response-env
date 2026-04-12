@@ -14,7 +14,7 @@ def grade_allocation(action, required):
 
     raw_score = score / total
 
-    # 🔥 STRICT FIX (no 0 or 1 ever)
+    # clamp
     if raw_score <= 0:
         return 0.05
     elif raw_score >= 1:
