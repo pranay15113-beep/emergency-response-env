@@ -22,7 +22,6 @@ def get_agent_action(state):
         pass
 
     actions = []
-
     for incident in state:
         modified = {}
 
@@ -30,32 +29,41 @@ def get_agent_action(state):
             if v > 1:
                 modified[k] = v - 1
             else:
-                modified[k] = 1   # 🔥 avoid zero
+                modified[k] = 1
 
         actions.append(modified)
 
     return {"action": actions}
 
 
+def run_task(task_name):
+    print(f"[START] task={task_name}", flush=True)
+
+    res = requests.post(f"{BASE_URL}/reset")
+    data = res.json()
+    state = data.get("state", data)
+
+    action = get_agent_action(state)
+
+    res = requests.post(f"{BASE_URL}/step", json=action)
+    result = res.json()
+
+    reward = result.get("reward", 0)
+
+    print(f"[STEP] step=1 reward={reward}", flush=True)
+    print(f"[END] task={task_name} score={reward} steps=1", flush=True)
+
+
 def main():
     try:
-        task_name = "emergency_response"
+        tasks = [
+            "easy_allocation",
+            "medium_multi_incident",
+            "hard_cascade"
+        ]
 
-        print(f"[START] task={task_name}", flush=True)
-
-        res = requests.post(f"{BASE_URL}/reset")
-        data = res.json()
-        state = data.get("state", data)
-
-        action = get_agent_action(state)
-
-        res = requests.post(f"{BASE_URL}/step", json=action)
-        result = res.json()
-
-        reward = result.get("reward", 0)
-
-        print(f"[STEP] step=1 reward={reward}", flush=True)
-        print(f"[END] task={task_name} score={reward} steps=1", flush=True)
+        for task in tasks:
+            run_task(task)
 
     except Exception as e:
         print(f"[ERROR] {str(e)}", flush=True)
