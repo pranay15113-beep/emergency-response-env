@@ -14,22 +14,26 @@ class EmergencyEnv:
 
         self.current = None
 
-  def reset(self, task=None):
-        base = random.sample(self.incidents, 2)
+    def reset(self, task=None):
+        if task == "easy_allocation":
+            base = [random.choice(self.incidents)]
 
-        # cascade logic
-        if base[0]["incident_type"] == "fire":
-            base.append({
-                "incident_type": "accident",
-                "location": base[0]["location"],
-                "severity": 6,
-                "required": {"ambulance": 1, "police": 1}
-            })
+        elif task == "medium_multi_incident":
+            base = random.sample(self.incidents, 2)
+
+        elif task == "hard_cascade":
+            base = random.sample(self.incidents, 2)
+            if base[0]["incident_type"] == "fire":
+                base.append({
+                    "incident_type": "accident",
+                    "location": base[0]["location"],
+                    "severity": 6,
+                    "required": {"ambulance": 1, "police": 1}
+                })
+        else:
+            base = random.sample(self.incidents, 2)
 
         self.current = base
-        return self.current
-
-    def state(self):
         return self.current
 
     def step(self, action):
@@ -46,14 +50,12 @@ class EmergencyEnv:
 
             score = grade_allocation(act, required)
 
-            # 🔥 safety clamp
+            # clamp (no 0 / no 1)
             score = max(0.05, min(0.95, score))
 
             total_score += score
 
         final_score = total_score / len(self.current)
-
-        # 🔥 final clamp
         final_score = max(0.05, min(0.95, final_score))
 
         return final_score
