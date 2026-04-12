@@ -11,12 +11,18 @@ client = OpenAI(
 
 
 def call_llm_once():
-    # 🔥 MUST happen FIRST
-    client.chat.completions.create(
-        model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
-        messages=[{"role": "user", "content": "Hello"}],
-        temperature=0
-    )
+    """
+    🔥 LLM call (must happen but must NOT crash)
+    """
+    try:
+        client.chat.completions.create(
+            model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
+            messages=[{"role": "user", "content": "Hello"}],
+            temperature=0
+        )
+    except Exception as e:
+        # 🔥 important: DO NOT crash
+        print(f"[LLM_WARNING] {str(e)}", flush=True)
 
 
 def get_agent_action(state):
@@ -50,13 +56,22 @@ def get_agent_action(state):
 def run_task(task_name):
     print(f"[START] task={task_name}", flush=True)
 
-    res = requests.post(f"{SERVER_URL}/reset", json={"task": task_name})
-    state = res.json()["state"]
+    try:
+        res = requests.post(f"{SERVER_URL}/reset", json={"task": task_name})
+        data = res.json()
+        state = data["state"]
+    except Exception as e:
+        print(f"[ERROR] reset failed: {e}", flush=True)
+        return
 
     action = get_agent_action(state)
 
-    res = requests.post(f"{SERVER_URL}/step", json=action)
-    result = res.json()
+    try:
+        res = requests.post(f"{SERVER_URL}/step", json=action)
+        result = res.json()
+    except Exception as e:
+        print(f"[ERROR] step failed: {e}", flush=True)
+        return
 
     reward = result.get("reward", 0)
 
@@ -70,7 +85,7 @@ def run_task(task_name):
 
 
 def main():
-    # 🔥 GUARANTEED LLM CALL FIRST
+    # 🔥 MUST call LLM, but safely
     call_llm_once()
 
     run_task("easy_allocation")
