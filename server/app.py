@@ -4,10 +4,8 @@ from typing import List, Dict
 from env.environment import EmergencyEnv
 
 app = FastAPI()
-
 env = EmergencyEnv()
 
-# Request model for step
 class ActionRequest(BaseModel):
     action: List[Dict]
 
@@ -18,9 +16,7 @@ def root():
 @app.post("/reset")
 def reset():
     state = env.reset()
-    return {
-        "state": state
-    }
+    return {"state": state}
 
 @app.post("/step")
 def step(request: ActionRequest):
@@ -32,3 +28,13 @@ def step(request: ActionRequest):
         "reward": reward,
         "done": done
     }
+
+
+# 🔥 ADD THIS PART
+def main():
+    import uvicorn
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
+
+
+if __name__ == "__main__":
+    main()
