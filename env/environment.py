@@ -46,14 +46,14 @@ class EmergencyEnv:
 
             score = grade_allocation(act, required)
 
-            # 🔥 clamp each incident score
-            score = max(0.01, min(0.99, score))
+            # 🔥 safety clamp
+            score = max(0.05, min(0.95, score))
 
             total_score += score
 
         final_score = total_score / len(self.current)
 
-        # 🔥 clamp final score also
-        final_score = max(0.01, min(0.99, final_score))
+        # 🔥 final clamp
+        final_score = max(0.05, min(0.95, final_score))
 
         return final_score
